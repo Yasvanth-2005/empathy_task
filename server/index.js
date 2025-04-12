@@ -7,11 +7,9 @@ import rateLimit from "express-rate-limit";
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 dotenv.config();
 
-// CORS configuration
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
 app.use(
   cors({
@@ -20,14 +18,12 @@ app.use(
   })
 );
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 app.use(limiter);
 
-// Session middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
@@ -37,13 +33,9 @@ app.use(
   })
 );
 
-// Environment variables
 const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID;
 const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
-const REDIRECT_URI =
-  process.env.NODE_ENV === "production"
-    ? "https://empathy-task-yash.vercel.app"
-    : "http://localhost:3000/callback";
+const REDIRECT_URI = process.env.REDIRECT_URI;
 
 if (
   !INSTAGRAM_APP_ID ||
@@ -57,16 +49,7 @@ if (
 
 console.log("Configured REDIRECT_URI:", REDIRECT_URI);
 
-// 1. Initiate Instagram OAuth Login
-app.get("/auth/instagram", (req, res) => {
-  const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
-    REDIRECT_URI
-  )}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
-  console.log("Authorization URL with redirect_uri:", authUrl);
-  res.redirect(authUrl);
-});
-
-// 2. Handle Callback (POST from frontend)
+// 1. Handle Callback from Frontend (POST)
 app.post("/callback", async (req, res) => {
   const { code } = req.body;
 
@@ -80,8 +63,8 @@ app.post("/callback", async (req, res) => {
   }
 
   try {
-    console.log("Token exchange redirect_uri:", REDIRECT_URI);
     console.log("Exchanging code for token with code:", code);
+    console.log("Using REDIRECT_URI:", REDIRECT_URI);
 
     const tokenResponse = await axios.post(
       "https://api.instagram.com/oauth/access_token",
@@ -100,7 +83,7 @@ app.post("/callback", async (req, res) => {
     );
 
     const accessToken = tokenResponse.data.access_token;
-    req.session.accessToken = accessToken;
+    req.session.accessToken = accessToken; // Store in session
     res.json({ access_token: accessToken });
   } catch (error) {
     console.error(
@@ -114,6 +97,7 @@ app.post("/callback", async (req, res) => {
   }
 });
 
+// 2. Fetch User Profile (Proxy Endpoint)
 app.get("/api/instagram/profile", async (req, res) => {
   const token = req.query.token || req.session.accessToken;
 
@@ -138,6 +122,7 @@ app.get("/api/instagram/profile", async (req, res) => {
   }
 });
 
+// 3. Fetch User Media (Proxy Endpoint)
 app.get("/api/instagram/media", async (req, res) => {
   const token = req.query.token || req.session.accessToken;
 
@@ -162,6 +147,7 @@ app.get("/api/instagram/media", async (req, res) => {
   }
 });
 
+// 4. Post Comment (Proxy Endpoint)
 app.post("/api/instagram/comment", async (req, res) => {
   const { mediaId, message } = req.body;
   const token = req.body.token || req.session.accessToken;
@@ -191,5 +177,6 @@ app.post("/api/instagram/comment", async (req, res) => {
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

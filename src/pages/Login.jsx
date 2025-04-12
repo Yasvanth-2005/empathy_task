@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -8,9 +8,16 @@ import axios from "axios";
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [error, setError] = useState(null);
+
+  const CLIENT_ID = "2232031687246073";
+  const REDIRECT_URI = "https://empathy-task-yash.vercel.app";
 
   const handleInstagramLogin = () => {
-    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/instagram`;
+    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+      REDIRECT_URI
+    )}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
+    window.location.href = authUrl;
   };
 
   useEffect(() => {
@@ -18,12 +25,17 @@ const Login = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get("code");
 
-      if (code) {
+      if (code && window.location.pathname === "/callback") {
         try {
           const response = await axios.post(
             `${import.meta.env.VITE_BACKEND_URL}/callback`,
             {
               code: code,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
             }
           );
 
@@ -33,10 +45,14 @@ const Login = () => {
             dispatch(setAccessToken(accessToken));
             navigate("/dashboard");
           } else {
-            console.error("No access token received from backend");
+            setError("No access token received from backend");
           }
         } catch (error) {
           console.error("Error during callback:", error);
+          setError("Authentication failed. Please check server logs.");
+          if (error.response) {
+            console.error("Error details:", error.response.data);
+          }
         }
       }
     };
@@ -56,6 +72,8 @@ const Login = () => {
             Connect with Instagram to view your profile and media
           </p>
         </div>
+
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <button
           onClick={handleInstagramLogin}
