@@ -9,16 +9,8 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const CLIENT_ID = "2232031687246073";
-  const REDIRECT_URI = "https://empathy-task-yash.vercel.app";
-  const SCOPE =
-    "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
-
   const handleInstagramLogin = () => {
-    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
-    )}&response_type=code&scope=${encodeURIComponent(SCOPE)}`;
-    window.location.href = authUrl;
+    window.location.href = "http://localhost:5000/auth/instagram";
   };
 
   useEffect(() => {
@@ -26,29 +18,22 @@ const Login = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get("code");
 
-      if (code) {
+      if (code && window.location.pathname === "/callback") {
         try {
-          const tokenResponse = await axios.post(
-            "https://api.instagram.com/oauth/access_token",
-            {
-              client_id: CLIENT_ID,
-              client_secret: process.env.REACT_APP_INSTAGRAM_CLIENT_SECRET,
-              grant_type: "authorization_code",
-              redirect_uri: REDIRECT_URI,
-              code: code,
-            }
-          );
+          const response = await axios.post("http://localhost:5000/callback", {
+            code: code,
+          });
 
-          const accessToken = tokenResponse.data.access_token;
+          const accessToken = response.data.access_token;
 
           if (accessToken) {
             dispatch(setAccessToken(accessToken));
             navigate("/dashboard");
           } else {
-            console.error("No access token received");
+            console.error("No access token received from backend");
           }
         } catch (error) {
-          console.error("Error exchanging code for token:", error);
+          console.error("Error during callback:", error);
         }
       }
     };
