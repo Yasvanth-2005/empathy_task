@@ -47,8 +47,6 @@ if (
   process.exit(1);
 }
 
-console.log("Configured REDIRECT_URI:", REDIRECT_URI);
-
 app.post("/callback", async (req, res) => {
   const { code } = req.body;
 
@@ -70,7 +68,7 @@ app.post("/callback", async (req, res) => {
         client_id: INSTAGRAM_APP_ID,
         client_secret: INSTAGRAM_APP_SECRET,
         grant_type: "authorization_code",
-        // redirect_uri: REDIRECT_URI,
+        redirect_uri: "https://empathy-task-yash.vercel.app/",
         code: code,
       }).toString(),
       {

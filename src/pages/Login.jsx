@@ -11,9 +11,7 @@ const Login = () => {
   const [error, setError] = useState(null);
 
   const CLIENT_ID = "2232031687246073";
-  const CLIENT_SECRET = "b8d5804037c115823022d5b537430f4e";
-  const REDIRECT_URI = "https://empathy-task-yash.vercel.app";
-  const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
+  const REDIRECT_URI = "https://empathy-task-yash.vercel.app/";
 
   const handleInstagramLogin = () => {
     const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
@@ -30,17 +28,13 @@ const Login = () => {
       if (code) {
         try {
           const response = await axios.post(
-            `https://api.instagram.com/oauth/access_token`,
-            new URLSearchParams({
-              client_id: CLIENT_ID,
-              client_secret: CLIENT_SECRET,
-              grant_type: "authorization_code",
-              redirect_uri: REDIRECT_URI,
+            `${import.meta.env.VITE_BACKEND_URL}/callback`,
+            {
               code: code,
-            }).toString(),
+            },
             {
               headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/json",
               },
             }
           );
@@ -51,11 +45,11 @@ const Login = () => {
             dispatch(setAccessToken(accessToken));
             navigate("/dashboard");
           } else {
-            setError("No access token received");
+            setError("No access token received from backend");
           }
         } catch (error) {
           console.error("Error during callback:", error);
-          setError("Authentication failed. Please try again.");
+          setError("Authentication failed. Please check server logs.");
           if (error.response) {
             console.error("Error details:", error.response.data);
           }
