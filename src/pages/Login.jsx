@@ -25,7 +25,7 @@ const Login = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get("code");
 
-      if (code && window.location.pathname === "/callback") {
+      if (code) {
         try {
           const response = await axios.post(
             `${import.meta.env.VITE_BACKEND_URL}/callback`,
