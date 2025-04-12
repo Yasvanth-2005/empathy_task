@@ -30,7 +30,6 @@ const Login = () => {
           const response = await axios.post(
             `${import.meta.env.VITE_BACKEND_URL}/callback`,
             {
-              redirect: REDIRECT_URI,
               code: code,
             },
             {

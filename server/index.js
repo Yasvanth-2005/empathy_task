@@ -70,7 +70,7 @@ app.post("/callback", async (req, res) => {
         client_id: INSTAGRAM_APP_ID,
         client_secret: INSTAGRAM_APP_SECRET,
         grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI,
+        // redirect_uri: REDIRECT_URI,
         code: code,
       }).toString(),
       {
