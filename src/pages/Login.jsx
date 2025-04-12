@@ -30,7 +30,7 @@ const Login = () => {
       if (code) {
         try {
           const response = await axios.post(
-            `${CORS_PROXY}https://api.instagram.com/oauth/access_token`,
+            `https://api.instagram.com/oauth/access_token`,
             new URLSearchParams({
               client_id: CLIENT_ID,
               client_secret: CLIENT_SECRET,
