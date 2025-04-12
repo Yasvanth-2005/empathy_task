@@ -67,19 +67,9 @@ app.post("/callback", async (req, res) => {
     console.log("Using REDIRECT_URI:", REDIRECT_URI);
 
     const tokenResponse = await axios.post(
-      "https://api.instagram.com/oauth/access_token",
-      new URLSearchParams({
-        client_id: INSTAGRAM_APP_ID,
-        client_secret: INSTAGRAM_APP_SECRET,
-        grant_type: "authorization_code",
-        redirect_uri: redirect,
-        code: code,
-      }).toString(),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
+      `https://api.instagram.com/oauth/access_token?client_id=${INSTAGRAM_APP_ID}&client_secret=${INSTAGRAM_APP_SECRET}&grant_type=authorization_code&code=${code}`,
+      null,
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
 
     const accessToken = tokenResponse.data.access_token;
