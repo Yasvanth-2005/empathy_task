@@ -42,7 +42,7 @@ const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID;
 const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
 const REDIRECT_URI =
   process.env.NODE_ENV === "production"
-    ? "https://empathy-task-yash.vercel.app/callback"
+    ? "https://empathy-task-yash.vercel.app"
     : "http://localhost:3000/callback";
 
 if (
@@ -89,7 +89,7 @@ app.post("/callback", async (req, res) => {
         client_id: INSTAGRAM_APP_ID,
         client_secret: INSTAGRAM_APP_SECRET,
         grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI, // Ensure this matches the logged authUrl
+        redirect_uri: REDIRECT_URI,
         code: code,
       }).toString(),
       {
