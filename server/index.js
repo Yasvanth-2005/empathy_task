@@ -51,7 +51,7 @@ console.log("Configured REDIRECT_URI:", REDIRECT_URI);
 
 // 1. Handle Callback from Frontend (POST)
 app.post("/callback", async (req, res) => {
-  const { code } = req.body;
+  const { code, redirect } = req.body;
 
   if (!code) {
     return res.status(400).json({ error: "No authorization code provided" });
@@ -72,7 +72,7 @@ app.post("/callback", async (req, res) => {
         client_id: INSTAGRAM_APP_ID,
         client_secret: INSTAGRAM_APP_SECRET,
         grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: redirect,
         code: code,
       }).toString(),
       {
