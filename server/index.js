@@ -7,9 +7,11 @@ import rateLimit from "express-rate-limit";
 
 const app = express();
 
+// Middleware
 app.use(express.json());
 dotenv.config();
 
+// CORS configuration
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
 app.use(
   cors({
@@ -18,12 +20,14 @@ app.use(
   })
 );
 
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
 
+// Session middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
@@ -33,10 +37,13 @@ app.use(
   })
 );
 
+// Environment variables
 const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID;
 const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
 const REDIRECT_URI =
-  process.env.REDIRECT_URI || "http://localhost:3000/callback";
+  process.env.NODE_ENV === "production"
+    ? "https://empathy-task-yash.vercel.app/callback"
+    : "http://localhost:3000/callback";
 
 if (
   !INSTAGRAM_APP_ID ||
@@ -50,14 +57,16 @@ if (
 
 console.log("Configured REDIRECT_URI:", REDIRECT_URI);
 
+// 1. Initiate Instagram OAuth Login
 app.get("/auth/instagram", (req, res) => {
   const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
     REDIRECT_URI
   )}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
-  console.log("Authorization URL:", authUrl);
+  console.log("Authorization URL with redirect_uri:", authUrl);
   res.redirect(authUrl);
 });
 
+// 2. Handle Callback (POST from frontend)
 app.post("/callback", async (req, res) => {
   const { code } = req.body;
 
@@ -65,13 +74,14 @@ app.post("/callback", async (req, res) => {
     return res.status(400).json({ error: "No authorization code provided" });
   }
 
+  // Check if we already have a token in session
   if (req.session.accessToken) {
     return res.json({ access_token: req.session.accessToken });
   }
 
   try {
+    console.log("Token exchange redirect_uri:", REDIRECT_URI);
     console.log("Exchanging code for token with code:", code);
-    console.log("Using REDIRECT_URI for token exchange:", REDIRECT_URI);
 
     const tokenResponse = await axios.post(
       "https://api.instagram.com/oauth/access_token",
@@ -79,7 +89,7 @@ app.post("/callback", async (req, res) => {
         client_id: INSTAGRAM_APP_ID,
         client_secret: INSTAGRAM_APP_SECRET,
         grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: REDIRECT_URI, // Ensure this matches the logged authUrl
         code: code,
       }).toString(),
       {
