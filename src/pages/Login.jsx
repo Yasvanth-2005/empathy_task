@@ -3,25 +3,53 @@ import { Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAccessToken } from "../store/user/userSlice";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const CLIENT_ID = "2232031687246073";
+  const REDIRECT_URI = "https://empathy-task-yash.vercel.app/callback";
+  const SCOPE =
+    "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
+
   const handleInstagramLogin = () => {
-    window.location.href = "http://localhost:5000/auth/instagram";
+    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+      REDIRECT_URI
+    )}&response_type=code&scope=${encodeURIComponent(SCOPE)}`;
+    window.location.href = authUrl;
   };
 
   useEffect(() => {
-    const handleOAuthCallback = () => {
+    const handleOAuthCallback = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get("token");
+      const code = urlParams.get("code");
 
-      if (token) {
-        dispatch(setAccessToken(token));
-        navigate("/dashboard");
-      } else if (window.location.pathname === "/callback") {
-        console.error("No token received in callback");
+      if (code && window.location.pathname === "/callback") {
+        try {
+          const tokenResponse = await axios.post(
+            "https://api.instagram.com/oauth/access_token",
+            {
+              client_id: CLIENT_ID,
+              client_secret: process.env.REACT_APP_INSTAGRAM_CLIENT_SECRET,
+              grant_type: "authorization_code",
+              redirect_uri: REDIRECT_URI,
+              code: code,
+            }
+          );
+
+          const accessToken = tokenResponse.data.access_token;
+
+          if (accessToken) {
+            dispatch(setAccessToken(accessToken));
+            navigate("/dashboard");
+          } else {
+            console.error("No access token received");
+          }
+        } catch (error) {
+          console.error("Error exchanging code for token:", error);
+        }
       }
     };
 
