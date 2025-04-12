@@ -28,13 +28,17 @@ const Dashboard = () => {
       try {
         // Fetch user profile using axios
         const profileResponse = await axios.get(
-          `http://localhost:5000/api/instagram/profile?token=${accessToken}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/instagram/profile?token=${accessToken}`
         );
         dispatch(setUser(profileResponse.data));
 
         // Fetch media using axios
         const mediaResponse = await axios.get(
-          `http://localhost:5000/api/instagram/media?token=${accessToken}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/instagram/media?token=${accessToken}`
         );
         dispatch(setMedia(mediaResponse.data.data || []));
       } catch (error) {

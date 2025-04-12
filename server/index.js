@@ -14,17 +14,23 @@ const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
 const REDIRECT_URI =
   process.env.REDIRECT_URI || "http://localhost:3000/callback";
 
+if (!INSTAGRAM_APP_ID || !INSTAGRAM_APP_SECRET || !REDIRECT_URI) {
+  console.error("Missing environment variables. Please check your .env file.");
+  process.exit(1);
+}
+
 app.get("/auth/instagram", (req, res) => {
-  console.log("hi");
-  const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_APP_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
+  const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
+    REDIRECT_URI
+  )}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
   res.redirect(authUrl);
 });
 
-app.get("/callback", async (req, res) => {
-  const code = req.query.code;
+app.post("/callback", async (req, res) => {
+  const { code } = req.body;
 
   if (!code) {
-    return res.status(400).send("No authorization code received");
+    return res.status(400).json({ error: "No authorization code provided" });
   }
 
   try {
@@ -45,18 +51,23 @@ app.get("/callback", async (req, res) => {
     );
 
     const accessToken = tokenResponse.data.access_token;
-    res.redirect(`http://localhost:3000/dashboard?token=${accessToken}`);
+    res.json({ access_token: accessToken });
   } catch (error) {
     console.error(
       "Error exchanging code for token:",
       error.response ? error.response.data : error.message
     );
-    res.status(500).send("Authentication failed");
+    res.status(500).json({ error: "Authentication failed" });
   }
 });
 
 app.get("/api/instagram/profile", async (req, res) => {
   const token = req.query.token;
+
+  if (!token) {
+    return res.status(400).json({ error: "No access token provided" });
+  }
+
   try {
     const response = await axios.get(
       `https://graph.instagram.com/me?fields=id,username,account_type,media_count,profile_picture_url&access_token=${token}`
@@ -73,6 +84,11 @@ app.get("/api/instagram/profile", async (req, res) => {
 
 app.get("/api/instagram/media", async (req, res) => {
   const token = req.query.token;
+
+  if (!token) {
+    return res.status(400).json({ error: "No access token provided" });
+  }
+
   try {
     const response = await axios.get(
       `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink&access_token=${token}`
@@ -87,4 +103,30 @@ app.get("/api/instagram/media", async (req, res) => {
   }
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+app.post("/api/instagram/comment", async (req, res) => {
+  const { token, mediaId, message } = req.body;
+
+  if (!token || !mediaId || !message) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const response = await axios.post(
+      `https://graph.instagram.com/${mediaId}/comments`,
+      {
+        message: message,
+        access_token: token,
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error(
+      "Error posting comment:",
+      error.response ? error.response.data : error.message
+    );
+    res.status(500).json({ error: "Failed to post comment" });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

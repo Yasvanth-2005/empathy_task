@@ -10,7 +10,7 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const handleInstagramLogin = () => {
-    window.location.href = "http://localhost:5000/auth/instagram";
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/instagram`;
   };
 
   useEffect(() => {
@@ -18,11 +18,14 @@ const Login = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get("code");
 
-      if (code && window.location.pathname === "/callback") {
+      if (code) {
         try {
-          const response = await axios.post("http://localhost:5000/callback", {
-            code: code,
-          });
+          const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/callback`,
+            {
+              code: code,
+            }
+          );
 
           const accessToken = response.data.access_token;
 
