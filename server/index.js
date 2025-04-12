@@ -49,15 +49,13 @@ if (
 
 console.log("Configured REDIRECT_URI:", REDIRECT_URI);
 
-// 1. Handle Callback from Frontend (POST)
 app.post("/callback", async (req, res) => {
-  const { code, redirect } = req.body;
+  const { code } = req.body;
 
   if (!code) {
     return res.status(400).json({ error: "No authorization code provided" });
   }
 
-  // Check if we already have a token in session
   if (req.session.accessToken) {
     return res.json({ access_token: req.session.accessToken });
   }
@@ -67,13 +65,23 @@ app.post("/callback", async (req, res) => {
     console.log("Using REDIRECT_URI:", REDIRECT_URI);
 
     const tokenResponse = await axios.post(
-      `https://api.instagram.com/oauth/access_token?client_id=${INSTAGRAM_APP_ID}&client_secret=${INSTAGRAM_APP_SECRET}&grant_type=authorization_code&code=${code}`,
-      null,
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      "https://api.instagram.com/oauth/access_token",
+      new URLSearchParams({
+        client_id: INSTAGRAM_APP_ID,
+        client_secret: INSTAGRAM_APP_SECRET,
+        grant_type: "authorization_code",
+        redirect_uri: REDIRECT_URI,
+        code: code,
+      }).toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
     );
 
     const accessToken = tokenResponse.data.access_token;
-    req.session.accessToken = accessToken; // Store in session
+    req.session.accessToken = accessToken;
     res.json({ access_token: accessToken });
   } catch (error) {
     console.error(
@@ -87,7 +95,6 @@ app.post("/callback", async (req, res) => {
   }
 });
 
-// 2. Fetch User Profile (Proxy Endpoint)
 app.get("/api/instagram/profile", async (req, res) => {
   const token = req.query.token || req.session.accessToken;
 
@@ -112,7 +119,6 @@ app.get("/api/instagram/profile", async (req, res) => {
   }
 });
 
-// 3. Fetch User Media (Proxy Endpoint)
 app.get("/api/instagram/media", async (req, res) => {
   const token = req.query.token || req.session.accessToken;
 
@@ -137,7 +143,6 @@ app.get("/api/instagram/media", async (req, res) => {
   }
 });
 
-// 4. Post Comment (Proxy Endpoint)
 app.post("/api/instagram/comment", async (req, res) => {
   const { mediaId, message } = req.body;
   const token = req.body.token || req.session.accessToken;
@@ -167,6 +172,5 @@ app.post("/api/instagram/comment", async (req, res) => {
   }
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
