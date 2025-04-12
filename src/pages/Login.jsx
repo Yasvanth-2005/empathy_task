@@ -10,7 +10,7 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const CLIENT_ID = "2232031687246073";
-  const REDIRECT_URI = "https://empathy-task-yash.vercel.app/callback";
+  const REDIRECT_URI = "https://empathy-task-yash.vercel.app";
   const SCOPE =
     "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
 
@@ -26,7 +26,7 @@ const Login = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get("code");
 
-      if (code && window.location.pathname === "/callback") {
+      if (code) {
         try {
           const tokenResponse = await axios.post(
             "https://api.instagram.com/oauth/access_token",
