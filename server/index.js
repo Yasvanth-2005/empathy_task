@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 dotenv.config();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 app.use(
   cors({
     origin: FRONTEND_ORIGIN,
@@ -26,7 +26,7 @@ app.use(limiter);
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: process.env.NODE_ENV === "production", httpOnly: true },
@@ -68,7 +68,7 @@ app.post("/callback", async (req, res) => {
         client_id: INSTAGRAM_APP_ID,
         client_secret: INSTAGRAM_APP_SECRET,
         grant_type: "authorization_code",
-        redirect_uri: "https://empathy-task-yash.vercel.app/",
+        redirect_uri: `${process.env.REDIRECT_URI}/`,
         code: code,
       }).toString(),
       {
