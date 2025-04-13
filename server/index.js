@@ -11,12 +11,7 @@ app.use(express.json());
 dotenv.config();
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
-app.use(
-  cors({
-    origin: FRONTEND_ORIGIN,
-    credentials: true,
-  })
-);
+app.use(cors());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
