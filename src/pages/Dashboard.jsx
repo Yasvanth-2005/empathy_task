@@ -105,7 +105,7 @@ const Dashboard = () => {
 
   if (loading)
     return (
-      <div className="flex items-center flex-col justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8">
+      <div className="flex items-center flex-col justify-center min-h-[90vh] bg-white px-4 sm:px-6 md:px-8">
         <TailSpin color="#4A5568" height={40} width={40} />
         <span className="mt-4 text-gray-600">
           Loading your Instagram data...
@@ -115,7 +115,7 @@ const Dashboard = () => {
 
   if (error)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8 text-red-600">
+      <div className="flex items-center justify-center min-h-[90vh] bg-white px-4 sm:px-6 md:px-8 text-red-600">
         Error: {error}
       </div>
     );
@@ -123,7 +123,7 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 md:px-8">
+    <div className="min-h-[90vh] bg-gray-50 px-4 sm:px-6 md:px-8">
       {/* Profile Section */}
       <div className="bg-white shadow-md rounded-lg p-6 mx-auto max-w-3xl mt-8 border border-gray-200">
         <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -172,31 +172,37 @@ const Dashboard = () => {
       {/* Media Grid (Instagram-style rectangular boxes) */}
       <div className="max-w-3xl mx-auto py-8">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Posts</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-          {media.map((item) => (
-            <div
-              key={item.id}
-              className="aspect-[4/5] cursor-pointer overflow-hidden rounded-md border border-gray-200 hover:border-gray-300 transition-all duration-300"
-              onClick={() => setSelectedMedia(item)}
-            >
-              {item.media_type === "VIDEO" ? (
-                <video
-                  className="w-full h-full object-cover"
-                  poster={`${item.media_url.split(".mp4")[0]}.jpg`}
-                >
-                  <source src={item.media_url} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              ) : (
-                <img
-                  src={item.media_url}
-                  alt={item.caption || "Media"}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        {media.length === 0 ? (
+          <div className="flex items-center justify-center min-h-[500px] bg-white">
+            <span className="text-gray-500">No posts found</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            {media.map((item) => (
+              <div
+                key={item.id}
+                className="aspect-[4/5] cursor-pointer overflow-hidden rounded-md border border-gray-200 hover:border-gray-300 transition-all duration-300"
+                onClick={() => setSelectedMedia(item)}
+              >
+                {item.media_type === "VIDEO" ? (
+                  <video
+                    className="w-full h-full object-cover"
+                    poster={`${item.media_url.split(".mp4")[0]}.jpg`}
+                  >
+                    <source src={item.media_url} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img
+                    src={item.media_url}
+                    alt={item.caption || "Media"}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Modal for Full Media and Comments */}
@@ -226,11 +232,6 @@ const Dashboard = () => {
       >
         {selectedMedia && (
           <div className="flex flex-col h-full">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {selectedMedia.caption || "No caption"}
-              </h3>
-            </div>
             {selectedMedia.media_type === "VIDEO" ? (
               <video
                 controls
@@ -246,6 +247,12 @@ const Dashboard = () => {
                 alt={selectedMedia.caption || "Media"}
                 className="w-full h-64 object-cover rounded-md mb-4"
               />
+            )}
+            {/* Caption below media, Instagram style */}
+            {selectedMedia.caption && (
+              <div className="mb-4 text-gray-600 text-sm font-medium">
+                {selectedMedia.caption}
+              </div>
             )}
             <div className="flex-1 overflow-y-auto max-h-64 mb-4">
               {/* Comments Section in Modal */}
@@ -316,12 +323,6 @@ const Dashboard = () => {
                 )}
               </button>
             </div>
-            <button
-              onClick={() => setSelectedMedia(null)}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-300"
-            >
-              Close
-            </button>
           </div>
         )}
       </Modal>
