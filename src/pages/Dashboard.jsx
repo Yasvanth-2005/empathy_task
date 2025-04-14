@@ -185,7 +185,7 @@ const Dashboard = () => {
                 {item.media_type === "VIDEO" ? (
                   <video
                     className="w-full h-full object-cover"
-                    poster={`${item.media_url.split(".mp4")[0]}.jpg`}
+                    poster={`http://www.commander.co.uk/wp-content/uploads/2015/06/video-placeholder.png`}
                   >
                     <source src={item.media_url} type="video/mp4" />
                     Your browser does not support the video tag.
@@ -233,7 +233,7 @@ const Dashboard = () => {
               <video
                 controls
                 className="w-full h-64 object-cover rounded-md mb-2"
-                poster={`http://www.commander.co.uk/wp-content/uploads/2015/06/video-placeholder.png`}
+                poster={`${selectedMedia.media_url.split(".mp4")[0]}.jpg`}
               >
                 <source src={selectedMedia.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
