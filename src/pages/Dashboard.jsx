@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!accessToken) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
@@ -156,14 +156,14 @@ const Dashboard = () => {
             )}
           </div>
           <div className="w-full sm:w-auto">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            <h1 className="text-lg font-semibold text-gray-900 mb-2">
               {user.username || "N/A"}
             </h1>
-            <div className="flex flex-col sm:flex-row gap-2 mb-2">
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            <div className="flex flex-col gap-2 mb-2">
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full max-w-fit text-xs font-medium">
                 {user.account_type}
               </span>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full max-w-fit text-xs font-medium">
                 {user.media_count} Posts
               </span>
             </div>
@@ -173,7 +173,7 @@ const Dashboard = () => {
             <button
               onClick={() => {
                 dispatch(logout());
-                navigate("/login");
+                navigate("/");
               }}
               className="mt-4 px-5 py-2 cursor-pointer bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2 transition-all duration-300"
             >
