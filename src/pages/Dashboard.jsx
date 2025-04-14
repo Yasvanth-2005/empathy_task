@@ -11,6 +11,10 @@ import {
 } from "../store/user/userSlice";
 import { TailSpin } from "react-loader-spinner";
 import { LogOut } from "lucide-react";
+import Modal from "react-modal";
+
+// Bind modal to app for accessibility
+Modal.setAppElement("#root");
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -22,8 +26,7 @@ const Dashboard = () => {
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState({});
   const [sendingComment, setSendingComment] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [selectedMedia, setSelectedMedia] = useState(null); // State for modal
 
   useEffect(() => {
     if (!accessToken) {
@@ -100,27 +103,9 @@ const Dashboard = () => {
     }
   };
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentMedia = media.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(media.length / itemsPerPage);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8">
+      <div className="flex items-center flex-col justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8">
         <TailSpin color="#4A5568" height={40} width={40} />
         <span className="mt-4 text-gray-600">
           Loading your Instagram data...
@@ -159,7 +144,7 @@ const Dashboard = () => {
             <h1 className="text-lg font-semibold text-gray-900 mb-2">
               {user.username || "N/A"}
             </h1>
-            <div className="flex flex-col gap-2 mb-2">
+            <div className="flex gap-2 mb-2">
               <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full max-w-fit text-xs font-medium">
                 {user.account_type}
               </span>
@@ -184,19 +169,19 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Media Grid */}
+      {/* Media Grid (Instagram-style rectangular boxes) */}
       <div className="max-w-3xl mx-auto py-8">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Posts</h2>
-        <div className="space-y-6">
-          {currentMedia.map((item) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+          {media.map((item) => (
             <div
               key={item.id}
-              className="bg-white shadow-sm rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-300"
+              className="aspect-[4/5] cursor-pointer overflow-hidden rounded-md border border-gray-200 hover:border-gray-300 transition-all duration-300"
+              onClick={() => setSelectedMedia(item)}
             >
               {item.media_type === "VIDEO" ? (
                 <video
-                  controls
-                  className="w-full object-cover rounded-md mb-3"
+                  className="w-full h-full object-cover"
                   poster={`${item.media_url.split(".mp4")[0]}.jpg`}
                 >
                   <source src={item.media_url} type="video/mp4" />
@@ -206,26 +191,66 @@ const Dashboard = () => {
                 <img
                   src={item.media_url}
                   alt={item.caption || "Media"}
-                  className="w-full object-cover rounded-md mb-3"
+                  className="w-full h-full object-cover"
                 />
               )}
-              <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                {item.caption || "No caption"}
-              </p>
-              <div className="flex justify-between items-center mb-4">
-                <a
-                  href={item.permalink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline text-sm font-medium"
-                >
-                  View on Instagram
-                </a>
-              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-              {/* Comments Section */}
-              <div className="space-y-3 mb-4">
-                {(comments[item.id] || []).map((comment) => (
+      {/* Modal for Full Media and Comments */}
+      <Modal
+        isOpen={!!selectedMedia}
+        onRequestClose={() => setSelectedMedia(null)}
+        style={{
+          content: {
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
+            maxWidth: "90vw",
+            maxHeight: "90vh",
+            width: "500px",
+            borderRadius: "8px",
+            padding: "20px",
+            background: "#fff",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          },
+          overlay: {
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          },
+        }}
+      >
+        {selectedMedia && (
+          <div className="flex flex-col h-full">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {selectedMedia.caption || "No caption"}
+              </h3>
+            </div>
+            {selectedMedia.media_type === "VIDEO" ? (
+              <video
+                controls
+                className="w-full h-64 object-cover rounded-md mb-4"
+                poster={`${selectedMedia.media_url.split(".mp4")[0]}.jpg`}
+              >
+                <source src={selectedMedia.media_url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img
+                src={selectedMedia.media_url}
+                alt={selectedMedia.caption || "Media"}
+                className="w-full h-64 object-cover rounded-md mb-4"
+              />
+            )}
+            <div className="flex-1 overflow-y-auto max-h-64 mb-4">
+              {/* Comments Section in Modal */}
+              <div className="space-y-3">
+                {(comments[selectedMedia.id] || []).map((comment) => (
                   <div
                     key={comment.id}
                     className="bg-gray-50 rounded-md p-3 border border-gray-100"
@@ -253,70 +278,53 @@ const Dashboard = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Add Comment Input */}
-              <div className="mt-4 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Add a comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter" && !sendingComment[item.id]) {
-                      handleAddComment(item.id);
-                    }
-                  }}
-                  disabled={sendingComment[item.id]}
-                  className={`flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
-                    sendingComment[item.id] ? "bg-gray-100" : ""
-                  } transition-all duration-300`}
-                />
-                <button
-                  onClick={() => handleAddComment(item.id)}
-                  disabled={sendingComment[item.id]}
-                  className={`bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-all duration-300 text-sm ${
-                    sendingComment[item.id]
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
-                >
-                  {sendingComment[item.id] ? (
-                    <div className="flex items-center gap-1">
-                      <TailSpin color="#ffffff" height={16} width={16} />
-                      <span>Sending...</span>
-                    </div>
-                  ) : (
-                    "Post"
-                  )}
-                </button>
-              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Pagination Controls (only show if more than one page) */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex justify-center gap-4">
+            {/* Add Comment Input in Modal */}
+            <div className="mt-4 flex gap-2">
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !sendingComment[selectedMedia.id]) {
+                    handleAddComment(selectedMedia.id);
+                  }
+                }}
+                disabled={sendingComment[selectedMedia.id]}
+                className={`flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
+                  sendingComment[selectedMedia.id] ? "bg-gray-100" : ""
+                } transition-all duration-300`}
+              />
+              <button
+                onClick={() => handleAddComment(selectedMedia.id)}
+                disabled={sendingComment[selectedMedia.id]}
+                className={`bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-all duration-300 text-sm ${
+                  sendingComment[selectedMedia.id]
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {sendingComment[selectedMedia.id] ? (
+                  <div className="flex items-center gap-1">
+                    <TailSpin color="#ffffff" height={16} width={16} />
+                    <span>Sending...</span>
+                  </div>
+                ) : (
+                  "Post"
+                )}
+              </button>
+            </div>
             <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="px-3 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 text-sm"
+              onClick={() => setSelectedMedia(null)}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-300"
             >
-              Previous
-            </button>
-            <span className="px-3 py-2 text-gray-600">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 text-sm"
-            >
-              Next
+              Close
             </button>
           </div>
         )}
-      </div>
+      </Modal>
     </div>
   );
 };
