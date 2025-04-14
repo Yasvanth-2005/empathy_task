@@ -9,6 +9,7 @@ import {
   setError,
   logout,
 } from "../store/user/userSlice";
+import { TailSpin } from "react-loader-spinner";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const Dashboard = () => {
 
   const [newComment, setNewComment] = useState(""); // State for new comment input
   const [comments, setComments] = useState({}); // State to store comments for each media item
+  const [sendingComment, setSendingComment] = useState({}); // State to track which comment is being sent
 
   useEffect(() => {
     if (!accessToken) {
@@ -58,13 +60,15 @@ const Dashboard = () => {
   const handleAddComment = async (mediaId) => {
     if (!newComment.trim()) return;
 
+    setSendingComment((prev) => ({ ...prev, [mediaId]: true }));
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/instagram/comment`,
         {
           mediaId: mediaId,
           message: newComment,
-          token: accessToken, // Assuming token is required in the body
+          token: accessToken,
         }
       );
 
@@ -74,9 +78,9 @@ const Dashboard = () => {
         [mediaId]: [
           ...(prev[mediaId] || []),
           {
-            id: Date.now().toString(), // Temporary ID, replace with actual ID from response if available
+            id: Date.now().toString(),
             text: newComment,
-            username: user.username || "Current User", // Use current user's username
+            username: user.username || "Current User",
             timestamp: "Just now",
             replies: [],
           },
@@ -90,13 +94,18 @@ const Dashboard = () => {
           error.response ? error.response.data.error : "Failed to post comment"
         )
       );
+    } finally {
+      setSendingComment((prev) => ({ ...prev, [mediaId]: false }));
     }
   };
 
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <span className="loading loading-spinner loading-lg"></span>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <TailSpin color="#9333ea" height={40} width={40} />
+        <span className="mt-4 text-purple-500">
+          Loading your Instagram data...
+        </span>
       </div>
     );
   if (error)
@@ -110,7 +119,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Profile Section */}
-      <div className="bg-white shadow-md mb-6">
+      <div className="bg-white mb-6">
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg">
@@ -139,7 +148,7 @@ const Dashboard = () => {
                   dispatch(logout());
                   navigate("/login");
                 }}
-                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                className="mt-4 bg-red-500 text-white px-4 py-1.5 rounded-lg hover:bg-red-600 transition-colors"
               >
                 Logout
               </button>
@@ -207,13 +216,28 @@ const Dashboard = () => {
                     placeholder="Add a comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    className="flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    disabled={sendingComment[item.id]}
+                    className={`flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      sendingComment[item.id] ? "bg-gray-100" : ""
+                    }`}
                   />
                   <button
                     onClick={() => handleAddComment(item.id)}
-                    className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                    disabled={sendingComment[item.id]}
+                    className={`bg-purple-500 text-white px-4 py-2 rounded-lg transition-colors ${
+                      sendingComment[item.id]
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-purple-600"
+                    }`}
                   >
-                    Post
+                    {sendingComment[item.id] ? (
+                      <div className="flex items-center gap-2">
+                        <TailSpin color="#ffffff" height={20} width={20} />
+                        <span>Sending...</span>
+                      </div>
+                    ) : (
+                      "Post"
+                    )}
                   </button>
                 </div>
               </div>

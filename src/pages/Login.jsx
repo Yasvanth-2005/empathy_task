@@ -4,16 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAccessToken } from "../store/user/userSlice";
 import axios from "axios";
+import { TailSpin } from "react-loader-spinner";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
   const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
 
   const handleInstagramLogin = () => {
+    setLoading(true);
     const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
       REDIRECT_URI
     )}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
@@ -26,6 +29,7 @@ const Login = () => {
       const code = urlParams.get("code");
 
       if (code) {
+        setLoading(true);
         try {
           const response = await axios.post(
             `${import.meta.env.VITE_BACKEND_URL}/callback`,
@@ -53,6 +57,8 @@ const Login = () => {
           if (error.response) {
             console.error("Error details:", error.response.data);
           }
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -69,19 +75,28 @@ const Login = () => {
             Instagram Integration
           </h1>
           <p className="text-gray-600">
-            Connect with Instagram to view your profile and media
+            Connect with Instagram to view your profile and media and comment on
+            them
           </p>
         </div>
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-        <button
-          onClick={handleInstagramLogin}
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <Instagram className="h-5 w-5" />
-          Login with Instagram
-        </button>
+        {loading ? (
+          <div className="flex justify-center">
+            <TailSpin color="#9333ea" height={40} width={40} />
+            <span className="ml-2 text-purple-500">Logging In...</span>
+          </div>
+        ) : (
+          <button
+            onClick={handleInstagramLogin}
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer"
+            disabled={loading}
+          >
+            <Instagram className="h-5 w-5" />
+            Login with Instagram
+          </button>
+        )}
 
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>By continuing, you agree to our</p>

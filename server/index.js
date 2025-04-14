@@ -10,7 +10,6 @@ const app = express();
 app.use(express.json());
 dotenv.config();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 app.use(cors());
 
 const limiter = rateLimit({
