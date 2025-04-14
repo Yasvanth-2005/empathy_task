@@ -18,9 +18,11 @@ const Dashboard = () => {
     (state) => state.user
   );
 
-  const [newComment, setNewComment] = useState(""); // State for new comment input
-  const [comments, setComments] = useState({}); // State to store comments for each media item
-  const [sendingComment, setSendingComment] = useState({}); // State to track which comment is being sent
+  const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState({});
+  const [sendingComment, setSendingComment] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of media items per page
 
   useEffect(() => {
     if (!accessToken) {
@@ -56,7 +58,6 @@ const Dashboard = () => {
     fetchUserAndMedia();
   }, [accessToken, dispatch, navigate]);
 
-  // Function to handle adding a new comment
   const handleAddComment = async (mediaId) => {
     if (!newComment.trim()) return;
 
@@ -72,7 +73,6 @@ const Dashboard = () => {
         }
       );
 
-      // Update local state with the new comment
       setComments((prev) => ({
         ...prev,
         [mediaId]: [
@@ -87,7 +87,7 @@ const Dashboard = () => {
         ],
       }));
 
-      setNewComment(""); // Clear input
+      setNewComment("");
     } catch (error) {
       dispatch(
         setError(
@@ -99,30 +99,50 @@ const Dashboard = () => {
     }
   };
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMedia = media.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(media.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <TailSpin color="#9333ea" height={40} width={40} />
         <span className="mt-4 text-purple-500">
           Loading your Instagram data...
         </span>
       </div>
     );
+
   if (error)
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 text-red-500">
         Error: {error}
       </div>
     );
+
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Profile Section */}
-      <div className="bg-white mb-6">
-        <div className="max-w-3xl mx-auto px-4 py-8">
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg">
+      <div className="bg-white shadow-lg rounded-lg mb-8">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-8">
+            <div className="w-32 h-32 rounded-full overflow-hidden shadow-2xl transform transition-transform hover:scale-105">
               {user.profile_picture_url ? (
                 <img
                   src={user.profile_picture_url}
@@ -136,19 +156,21 @@ const Dashboard = () => {
               )}
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-4 mb-2">
-                <h1 className="text-2xl font-bold">{user.username || "N/A"}</h1>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+              <div className="flex items-center gap-4 mb-3">
+                <h1 className="text-3xl font-bold text-gray-800">
+                  {user.username || "N/A"}
+                </h1>
+                <span className="px-4 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                   {user.account_type}
                 </span>
               </div>
-              <div className="text-gray-600 text-sm">Account ID: {user.id}</div>
+              <div className="text-gray-600 text-md">Account ID: {user.id}</div>
               <button
                 onClick={() => {
                   dispatch(logout());
                   navigate("/login");
                 }}
-                className="mt-4 bg-red-500 text-white px-4 py-1.5 rounded-lg hover:bg-red-600 transition-colors"
+                className="mt-6 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-md"
               >
                 Logout
               </button>
@@ -158,26 +180,31 @@ const Dashboard = () => {
       </div>
 
       {/* Media Grid */}
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-6 py-6">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+          Your Media
+        </h2>
         <div className="space-y-6">
-          {media.map((item) => (
+          {currentMedia.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-xl shadow-md overflow-hidden"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               <img
                 src={item.media_url}
                 alt={item.caption}
-                className="w-full aspect-square object-cover"
+                className="w-full h-64 object-cover"
               />
               <div className="p-6">
-                <p className="text-gray-800 mb-4">{item.caption}</p>
+                <p className="text-gray-800 mb-4 line-clamp-2">
+                  {item.caption}
+                </p>
                 <div className="flex justify-between items-center mb-4">
                   <a
                     href={item.permalink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
+                    className="text-blue-500 hover:underline font-medium"
                   >
                     View on Instagram
                   </a>
@@ -186,7 +213,10 @@ const Dashboard = () => {
                 {/* Comments Section */}
                 <div className="space-y-4 mb-4">
                   {(comments[item.id] || []).map((comment) => (
-                    <div key={comment.id} className="bg-gray-50 rounded-lg p-4">
+                    <div
+                      key={comment.id}
+                      className="bg-gray-50 rounded-lg p-4 shadow-sm"
+                    >
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                           <span className="text-gray-500">
@@ -195,7 +225,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold">
+                            <span className="font-semibold text-gray-800">
                               {comment.username}
                             </span>
                             <span className="text-sm text-gray-500">
@@ -219,15 +249,15 @@ const Dashboard = () => {
                     disabled={sendingComment[item.id]}
                     className={`flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       sendingComment[item.id] ? "bg-gray-100" : ""
-                    }`}
+                    } transition-all duration-300`}
                   />
                   <button
                     onClick={() => handleAddComment(item.id)}
                     disabled={sendingComment[item.id]}
-                    className={`bg-purple-500 text-white px-4 py-2 rounded-lg transition-colors ${
+                    className={`bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105 ${
                       sendingComment[item.id]
                         ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-purple-600"
+                        : ""
                     }`}
                   >
                     {sendingComment[item.id] ? (
@@ -243,6 +273,27 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-8 flex justify-center gap-4">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
