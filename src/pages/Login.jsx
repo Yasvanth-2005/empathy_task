@@ -79,16 +79,15 @@ const Login = () => {
             them
           </p>
         </div>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}(
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <button
           onClick={handleInstagramLogin}
           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer"
           disabled={loading}
         >
           <Instagram className="h-5 w-5" />
-          {loading ? "Login with Instagram" : "Logging In...."}
+          {!loading ? "Login with Instagram" : "Logging In...."}
         </button>
-        )
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>By continuing, you agree to our</p>
           <div className="flex justify-center gap-2 mt-1">
