@@ -232,7 +232,7 @@ const Dashboard = () => {
             {selectedMedia.media_type === "VIDEO" ? (
               <video
                 controls
-                className="w-full h-64 object-cover rounded-md mb-4"
+                className="w-full h-64 object-cover rounded-md mb-2"
                 poster={`${selectedMedia.media_url.split(".mp4")[0]}.jpg`}
               >
                 <source src={selectedMedia.media_url} type="video/mp4" />
@@ -242,16 +242,16 @@ const Dashboard = () => {
               <img
                 src={selectedMedia.media_url}
                 alt={selectedMedia.caption || "Media"}
-                className="w-full h-64 object-cover rounded-md mb-4"
+                className="w-full h-64 object-cover rounded-md mb-2"
               />
             )}
             {/* Caption below media, Instagram style */}
             {selectedMedia.caption && (
-              <div className="mb-4 text-gray-600 text-sm font-medium">
+              <div className="mb-2 text-gray-600 text-sm font-medium">
                 {selectedMedia.caption}
               </div>
             )}
-            <div className="flex-1 overflow-y-auto max-h-64 mb-4">
+            <div className="flex-1 overflow-y-auto max-h-64 mb-2">
               <div className="space-y-3">
                 {(comments[selectedMedia.id] || []).map((comment) => (
                   <div
