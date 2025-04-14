@@ -4,7 +4,7 @@ import { Login, Dashboard } from "./pages";
 
 const App = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-[90vh]">
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
