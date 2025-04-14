@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +25,7 @@ const Dashboard = () => {
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState({});
   const [sendingComment, setSendingComment] = useState({});
-  const [selectedMedia, setSelectedMedia] = useState(null); // State for modal
+  const [selectedMedia, setSelectedMedia] = useState(null);
 
   useEffect(() => {
     if (!accessToken) {
@@ -183,13 +183,7 @@ const Dashboard = () => {
                 onClick={() => setSelectedMedia(item)}
               >
                 {item.media_type === "VIDEO" ? (
-                  <video
-                    className="w-full h-full object-cover"
-                    poster={`${item.media_url.split(".mp4")[1]}.jpg`}
-                  >
-                    <source src={item.media_url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                  <VideoPreview url={item.media_url} />
                 ) : (
                   <img
                     src={item.media_url}
@@ -245,6 +239,7 @@ const Dashboard = () => {
                 className="w-full h-64 object-cover rounded-md mb-2"
               />
             )}
+
             {/* Caption below media, Instagram style */}
             {selectedMedia.caption && (
               <div className="mb-2 text-gray-600 text-sm font-medium">
@@ -323,6 +318,15 @@ const Dashboard = () => {
         )}
       </Modal>
     </div>
+  );
+};
+
+const VideoPreview = ({ url }) => {
+  return (
+    <video className="w-full h-full object-cover" autoPlay muted loop={true}>
+      <source src={url} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
   );
 };
 
