@@ -13,7 +13,6 @@ import { TailSpin } from "react-loader-spinner";
 import { LogOut } from "lucide-react";
 import Modal from "react-modal";
 
-// Bind modal to app for accessibility
 Modal.setAppElement("#root");
 
 const Dashboard = () => {
@@ -169,7 +168,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Media Grid (Instagram-style rectangular boxes) */}
       <div className="max-w-3xl mx-auto py-8">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Posts</h2>
         {media.length === 0 ? (
@@ -177,7 +175,7 @@ const Dashboard = () => {
             <span className="text-gray-500">No posts found</span>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {media.map((item) => (
               <div
                 key={item.id}
@@ -205,7 +203,6 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Modal for Full Media and Comments */}
       <Modal
         isOpen={!!selectedMedia}
         onRequestClose={() => setSelectedMedia(null)}
@@ -255,7 +252,6 @@ const Dashboard = () => {
               </div>
             )}
             <div className="flex-1 overflow-y-auto max-h-64 mb-4">
-              {/* Comments Section in Modal */}
               <div className="space-y-3">
                 {(comments[selectedMedia.id] || []).map((comment) => (
                   <div
