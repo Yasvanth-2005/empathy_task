@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [comments, setComments] = useState({});
   const [sendingComment, setSendingComment] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Number of media items per page
+  const itemsPerPage = 5;
 
   useEffect(() => {
     if (!accessToken) {
@@ -163,6 +163,9 @@ const Dashboard = () => {
               <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                 {user.account_type}
               </span>
+              <span className="ml-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                {user.media_count} Posts
+              </span>
             </div>
             <div className="text-gray-600 text-sm">Account ID: {user.id}</div>
             <button
@@ -170,7 +173,7 @@ const Dashboard = () => {
                 dispatch(logout());
                 navigate("/login");
               }}
-              className="mt-4 px-5 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2 transition-all duration-300"
+              className="mt-4 px-5 py-2 cursor-pointer bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2 transition-all duration-300"
             >
               <LogOut size={16} />
               Logout
@@ -188,13 +191,24 @@ const Dashboard = () => {
               key={item.id}
               className="bg-white shadow-sm rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-300"
             >
-              <img
-                src={item.media_url}
-                alt={item.caption}
-                className="w-full object-cover rounded-md mb-3"
-              />
+              {item.media_type === "VIDEO" ? (
+                <video
+                  controls
+                  className="w-full object-cover rounded-md mb-3"
+                  poster={`${item.media_url.split(".mp4")[0]}.jpg`}
+                >
+                  <source src={item.media_url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <img
+                  src={item.media_url}
+                  alt={item.caption || "Media"}
+                  className="w-full object-cover rounded-md mb-3"
+                />
+              )}
               <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                {item.caption}
+                {item.caption || "No caption"}
               </p>
               <div className="flex justify-between items-center mb-4">
                 <a
