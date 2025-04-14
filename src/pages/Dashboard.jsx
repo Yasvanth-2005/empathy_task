@@ -10,6 +10,7 @@ import {
   logout,
 } from "../store/user/userSlice";
 import { TailSpin } from "react-loader-spinner";
+import { LogOut } from "lucide-react";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -141,7 +142,7 @@ const Dashboard = () => {
       {/* Profile Section */}
       <div className="bg-white shadow-md rounded-lg p-6 mx-auto max-w-3xl mt-8 border border-gray-200">
         <div className="flex items-center gap-6">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-100">
+          <div className="w-24 rounded-full overflow-hidden border-2 border-gray-100">
             {user.profile_picture_url ? (
               <img
                 src={user.profile_picture_url}
@@ -169,8 +170,9 @@ const Dashboard = () => {
                 dispatch(logout());
                 navigate("/login");
               }}
-              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"
+              className="mt-4 px-5 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2 transition-all duration-300"
             >
+              <LogOut size={16} />
               Logout
             </button>
           </div>
@@ -178,7 +180,7 @@ const Dashboard = () => {
       </div>
 
       {/* Media Grid */}
-      <div className="max-w-3xl mx-auto px-6 py-8">
+      <div className="max-w-3xl mx-auto py-8">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Posts</h2>
         <div className="space-y-6">
           {currentMedia.map((item) => (
