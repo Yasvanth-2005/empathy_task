@@ -120,7 +120,7 @@ const Dashboard = () => {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8">
         <TailSpin color="#4A5568" height={40} width={40} />
         <span className="mt-4 text-gray-600">
           Loading your Instagram data...
@@ -130,7 +130,7 @@ const Dashboard = () => {
 
   if (error)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white text-red-600">
+      <div className="flex items-center justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8 text-red-600">
         Error: {error}
       </div>
     );
@@ -138,10 +138,10 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 md:px-8">
       {/* Profile Section */}
       <div className="bg-white shadow-md rounded-lg p-6 mx-auto max-w-3xl mt-8 border border-gray-200">
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-100">
             {user.profile_picture_url ? (
               <img
@@ -155,19 +155,21 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">
-                {user.username || "N/A"}
-              </h1>
+          <div className="w-full sm:w-auto">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+              {user.username || "N/A"}
+            </h1>
+            <div className="flex flex-col sm:flex-row gap-2 mb-2">
               <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                 {user.account_type}
               </span>
-              <span className="ml-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                 {user.media_count} Posts
               </span>
             </div>
-            <div className="text-gray-600 text-sm">Account ID: {user.id}</div>
+            <div className="text-gray-600 text-sm line-clamp-1">
+              Account ID: {user.id}
+            </div>
             <button
               onClick={() => {
                 dispatch(logout());
