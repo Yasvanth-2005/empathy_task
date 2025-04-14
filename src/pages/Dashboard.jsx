@@ -183,13 +183,18 @@ const Dashboard = () => {
                 onClick={() => setSelectedMedia(item)}
               >
                 {item.media_type === "VIDEO" ? (
-                  <video
+                  // <video
+                  //   className="w-full h-full object-cover"
+                  //   poster={`http://www.commander.co.uk/wp-content/uploads/2015/06/video-placeholder.png`}
+                  // >
+                  //   <source src={item.media_url} type="video/mp4" />
+                  //   Your browser does not support the video tag.
+                  // </video>
+                  <img
+                    src={`http://www.commander.co.uk/wp-content/uploads/2015/06/video-placeholder.png`}
+                    alt={item.caption || "Media"}
                     className="w-full h-full object-cover"
-                    poster={`http://www.commander.co.uk/wp-content/uploads/2015/06/video-placeholder.png`}
-                  >
-                    <source src={item.media_url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                  />
                 ) : (
                   <img
                     src={item.media_url}
