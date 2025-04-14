@@ -120,7 +120,7 @@ const Dashboard = () => {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8">
+      <div className="flex items-center justify-center min-h-screen bg-white px-4 sm:px-6 md:px-8">
         <TailSpin color="#4A5568" height={40} width={40} />
         <span className="mt-4 text-gray-600">
           Loading your Instagram data...
@@ -175,9 +175,9 @@ const Dashboard = () => {
                 dispatch(logout());
                 navigate("/");
               }}
-              className="mt-4 px-5 py-2 cursor-pointer bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2 transition-all duration-300"
+              className="mt-4 px-5 py-2 cursor-pointer bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-medium rounded-md shadow-md hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center gap-2 transition-all duration-300"
             >
-              <LogOut size={16} />
+              <LogOut size={12} />
               Logout
             </button>
           </div>
