@@ -142,7 +142,7 @@ const Dashboard = () => {
       {/* Profile Section */}
       <div className="bg-white shadow-md rounded-lg p-6 mx-auto max-w-3xl mt-8 border border-gray-200">
         <div className="flex items-center gap-6">
-          <div className="w-24 rounded-full overflow-hidden border-2 border-gray-100">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-100">
             {user.profile_picture_url ? (
               <img
                 src={user.profile_picture_url}
@@ -191,7 +191,7 @@ const Dashboard = () => {
               <img
                 src={item.media_url}
                 alt={item.caption}
-                className="w-full h-48 object-cover rounded-md mb-3"
+                className="w-full object-cover rounded-md mb-3"
               />
               <p className="text-gray-700 text-sm mb-3 line-clamp-2">
                 {item.caption}
