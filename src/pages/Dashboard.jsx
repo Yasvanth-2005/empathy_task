@@ -119,15 +119,17 @@ const Dashboard = () => {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-purple-500 via-orange-400 to-yellow-300">
-        <TailSpin color="#ffffff" height={40} width={40} />
-        <span className="mt-4 text-white">Loading your Instagram data...</span>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+        <TailSpin color="#4A5568" height={40} width={40} />
+        <span className="mt-4 text-gray-600">
+          Loading your Instagram data...
+        </span>
       </div>
     );
 
   if (error)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-500 via-orange-400 to-yellow-300 text-red-100">
+      <div className="flex items-center justify-center min-h-screen bg-white text-red-600">
         Error: {error}
       </div>
     );
@@ -135,11 +137,11 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-500 via-orange-400 to-yellow-300">
+    <div className="min-h-screen bg-gray-50">
       {/* Profile Section */}
-      <div className="bg-white rounded-2xl p-8 mx-auto max-w-3xl mt-8 border border-gray-100">
-        <div className="flex items-center gap-8">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white">
+      <div className="bg-white shadow-md rounded-lg p-6 mx-auto max-w-3xl mt-8 border border-gray-200">
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-100">
             {user.profile_picture_url ? (
               <img
                 src={user.profile_picture_url}
@@ -153,21 +155,21 @@ const Dashboard = () => {
             )}
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-4 mb-3">
-              <h1 className="text-3xl font-bold text-gray-900">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900">
                 {user.username || "N/A"}
               </h1>
-              <span className="px-4 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                 {user.account_type}
               </span>
             </div>
-            <div className="text-gray-600 text-md">Account ID: {user.id}</div>
+            <div className="text-gray-600 text-sm">Account ID: {user.id}</div>
             <button
               onClick={() => {
                 dispatch(logout());
                 navigate("/login");
               }}
-              className="mt-6 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300"
+              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"
             >
               Logout
             </button>
@@ -177,53 +179,57 @@ const Dashboard = () => {
 
       {/* Media Grid */}
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <h2 className="text-2xl font-semibold text-white mb-6">Your Posts</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Posts</h2>
         <div className="space-y-6">
           {currentMedia.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-2xl p-6 border border-gray-100 hover:bg-gray-50 transition-colors duration-300"
+              className="bg-white shadow-sm rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-300"
             >
               <img
                 src={item.media_url}
                 alt={item.caption}
-                className="w-full h-64 object-cover rounded-lg mb-4"
+                className="w-full h-48 object-cover rounded-md mb-3"
               />
-              <p className="text-gray-800 mb-4 line-clamp-2">{item.caption}</p>
+              <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                {item.caption}
+              </p>
               <div className="flex justify-between items-center mb-4">
                 <a
                   href={item.permalink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline font-medium"
+                  className="text-blue-500 hover:underline text-sm font-medium"
                 >
                   View on Instagram
                 </a>
               </div>
 
               {/* Comments Section */}
-              <div className="space-y-4 mb-4">
+              <div className="space-y-3 mb-4">
                 {(comments[item.id] || []).map((comment) => (
                   <div
                     key={comment.id}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-100"
+                    className="bg-gray-50 rounded-md p-3 border border-gray-100"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500">
+                    <div className="flex items-start gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500 text-xs">
                           {comment.username[0]}
                         </span>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-800">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium text-gray-800 text-sm">
                             {comment.username}
                           </span>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-xs text-gray-500">
                             {comment.timestamp}
                           </span>
                         </div>
-                        <p className="text-gray-700 mt-1">{comment.text}</p>
+                        <p className="text-gray-700 text-sm mt-1">
+                          {comment.text}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -237,23 +243,28 @@ const Dashboard = () => {
                   placeholder="Add a comment..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && !sendingComment[item.id]) {
+                      handleAddComment(item.id);
+                    }
+                  }}
                   disabled={sendingComment[item.id]}
-                  className={`flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  className={`flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
                     sendingComment[item.id] ? "bg-gray-100" : ""
                   } transition-all duration-300`}
                 />
                 <button
                   onClick={() => handleAddComment(item.id)}
                   disabled={sendingComment[item.id]}
-                  className={`bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all duration-300 ${
+                  className={`bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-all duration-300 text-sm ${
                     sendingComment[item.id]
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
                 >
                   {sendingComment[item.id] ? (
-                    <div className="flex items-center gap-2">
-                      <TailSpin color="#ffffff" height={20} width={20} />
+                    <div className="flex items-center gap-1">
+                      <TailSpin color="#ffffff" height={16} width={16} />
                       <span>Sending...</span>
                     </div>
                   ) : (
@@ -271,17 +282,17 @@ const Dashboard = () => {
             <button
               onClick={handlePrevPage}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+              className="px-3 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 text-sm"
             >
               Previous
             </button>
-            <span className="px-4 py-2 text-white">
+            <span className="px-3 py-2 text-gray-600">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+              className="px-3 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 text-sm"
             >
               Next
             </button>

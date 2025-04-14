@@ -29,7 +29,7 @@ const Login = () => {
       const code = urlParams.get("code");
 
       if (code) {
-        setLoading(true); // Set loading to true when handling callback
+        setLoading(true);
         try {
           const response = await axios.post(
             `${import.meta.env.VITE_BACKEND_URL}/callback`,
@@ -58,7 +58,7 @@ const Login = () => {
             console.error("Error details:", error.response.data);
           }
         } finally {
-          setLoading(false); // Ensure loading is set to false after callback completes (success or failure)
+          setLoading(false);
         }
       }
     };
