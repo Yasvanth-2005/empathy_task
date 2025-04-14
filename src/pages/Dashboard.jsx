@@ -185,7 +185,7 @@ const Dashboard = () => {
                 {item.media_type === "VIDEO" ? (
                   <video
                     className="w-full h-full object-cover"
-                    poster={`${item.media_url.split(".mp4")[0]}.jpg`}
+                    poster={`${item.media_url.split(".mp4")[1]}.jpg`}
                   >
                     <source src={item.media_url} type="video/mp4" />
                     Your browser does not support the video tag.
